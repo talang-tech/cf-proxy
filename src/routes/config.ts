@@ -95,6 +95,30 @@ export const ROUTES: ProxyRoute[] = [
     },
   },
 
+  // Docker Registry V2 根路由（Docker 客户端自动添加 /v2/ 前缀）
+  {
+    id: 'docker-v2',
+    name: 'Docker Registry V2 Proxy',
+    pattern: '/v2/',
+    target: 'https://registry-1.docker.io',
+    enabled: true,
+    handler: 'docker',
+    rewrite: {
+      path: (path) => path,
+    },
+    largeFile: {
+      enabled: true,
+      threshold: 10 * 1024 * 1024,
+      chunkSize: 2 * 1024 * 1024,
+      resumeSupport: true,
+    },
+    cache: {
+      enabled: true,
+      ttl: 86400,
+      maxFileSize: 500 * 1024 * 1024,
+    },
+  },
+
   // ========================================
   // Docker 代理
   // ========================================

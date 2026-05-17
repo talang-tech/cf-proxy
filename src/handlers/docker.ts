@@ -16,7 +16,14 @@ export async function dockerHandler(context: ProxyContext): Promise<Response> {
   try {
     // 构建目标 URL
     // 路径格式: /docker/v2/... -> https://registry-1.docker.io/v2/...
-    const path = url.pathname.replace(route.pattern as string, '/');
+    // 路径格式: /v2/... -> https://registry-1.docker.io/v2/...
+    let path = url.pathname;
+    if (route.id === 'docker-v2') {
+      // /v2/ 路由直接转发，保留前缀
+    } else {
+      // /docker/v2/ 路由去掉 /docker/ 前缀
+      path = path.replace(route.pattern as string, '/');
+    }
     const targetUrl = new URL(route.target);
     targetUrl.pathname = path;
     targetUrl.search = url.search;
