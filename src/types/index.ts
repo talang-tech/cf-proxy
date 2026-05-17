@@ -1,5 +1,5 @@
 // ========================================
-# Cloudflare Bindings 类型定义
+// Cloudflare Bindings 类型定义
 // ========================================
 
 export interface Env {
@@ -33,7 +33,7 @@ export interface Env {
 }
 
 // ========================================
-# 代理路由配置类型
+// 代理路由配置类型
 // ========================================
 
 export interface ProxyRoute {
@@ -92,7 +92,7 @@ export interface ProxyRoute {
 }
 
 // ========================================
-# 请求上下文类型
+// 请求上下文类型
 // ========================================
 
 export interface ProxyContext {
@@ -111,7 +111,7 @@ export interface ProxyContext {
 }
 
 // ========================================
-# 中间件类型
+// 中间件类型
 // ========================================
 
 export type Middleware = (
@@ -120,7 +120,7 @@ export type Middleware = (
 ) => Promise<Response> | Response;
 
 // ========================================
-# 日志类型
+// 日志类型
 // ========================================
 
 export interface LogEntry {
@@ -131,7 +131,7 @@ export interface LogEntry {
 }
 
 // ========================================
-# 代理结果类型
+// 代理结果类型
 // ========================================
 
 export interface ProxyResult {

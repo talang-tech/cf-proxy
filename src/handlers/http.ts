@@ -86,7 +86,7 @@ export async function httpHandler(context: ProxyContext): Promise<Response> {
     // 大文件使用流式传输
     if (isLargeFile || isStreaming) {
       return createStreamResponse(upstreamResponse, context, {
-        chunkSize: parseInt(env.CHUNK_SIZE ? parseInt(env.CHUNK_SIZE, 10) : 1024 * 1024,
+        chunkSize: parseInt(env.CHUNK_SIZE || "1048576", 10),
         resumeSupport: route.largeFile?.resumeSupport ?? true,
       });
     }
