@@ -117,7 +117,7 @@ async function connectAndProxyWebSocket(
   serverWs.accept();
 
   // 心跳检测
-  let pingTimer: number | null = null;
+  let pingTimer: ReturnType<typeof setInterval> | null = null;
   let pongReceived = true;
 
   const startPing = () => {

@@ -13,11 +13,11 @@ const LOG_LEVELS: Record<string, number> = {
 
 export class Logger {
   private level: number;
-  private debug: boolean;
+  private _debug: boolean;
 
   constructor(env: Env) {
     this.level = LOG_LEVELS[env.LOG_LEVEL || 'info'] ?? 1;
-    this.debug = env.DEBUG === 'true';
+    this._debug = env.DEBUG === 'true';
   }
 
   private log(level: string, message: string, data?: Record<string, any>): void {
