@@ -107,10 +107,11 @@ async function handleGitSmartHTTP(
   const upstreamResponse = await fetch(targetUrl.toString(), fetchOptions);
 
   // Git 响应使用流式传输
-  return createStreamResponse(upstreamResponse, context, {
-    chunkSize: 128 * 1024, // 128KB
-    resumeSupport: false,
-  });
+  return new Response(upstreamResponse.body, {
+      status: upstreamResponse.status,
+      statusText: upstreamResponse.statusText,
+      headers: upstreamResponse.headers,
+    });
 }
 
 /**
@@ -184,10 +185,11 @@ async function handleGitLFS(
   const upstreamResponse = await fetch(targetUrl.toString(), fetchOptions);
 
   // LFS 文件通常很大，使用流式传输
-  return createStreamResponse(upstreamResponse, context, {
-    chunkSize: 512 * 1024, // 512KB 分块
-    resumeSupport: true,
-  });
+  return new Response(upstreamResponse.body, {
+      status: upstreamResponse.status,
+      statusText: upstreamResponse.statusText,
+      headers: upstreamResponse.headers,
+    });
 }
 
 /**

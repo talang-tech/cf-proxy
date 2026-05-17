@@ -161,10 +161,11 @@ async function handleDockerBlob(
   const upstreamResponse = await fetch(targetUrl.toString(), fetchOptions);
 
   // Blob 通常很大，使用流式传输
-  return createStreamResponse(upstreamResponse, context, {
-    chunkSize: 2 * 1024 * 1024, // 2MB 分块
-    resumeSupport: true,
-  });
+  return new Response(upstreamResponse.body, {
+      status: upstreamResponse.status,
+      statusText: upstreamResponse.statusText,
+      headers: upstreamResponse.headers,
+    });
 }
 
 /**
