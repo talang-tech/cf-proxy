@@ -3,7 +3,7 @@
 // 支持 docker pull, docker push 等操作
 // ========================================
 
-import type { ProxyContext } from '../types';
+import type { ProxyContext, ProxyRoute } from '../types';
 import { createStreamResponse } from '../utils/stream';
 import { errorResponse } from '../utils/helpers';
 

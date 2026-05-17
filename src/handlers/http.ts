@@ -81,7 +81,7 @@ export async function httpHandler(context: ProxyContext): Promise<Response> {
     const isStreaming = contentLength > streamingThreshold;
     const isLargeFile = route.largeFile?.enabled && contentLength > (route.largeFile.threshold || 0);
 
-    context.isStreaming = isStreaming || isLargeFile;
+    context.isStreaming = !!isStreaming || !!isLargeFile;
 
     // 大文件使用流式传输
     if (isLargeFile || isStreaming) {

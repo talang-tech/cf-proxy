@@ -117,7 +117,7 @@ async function connectAndProxyWebSocket(
   serverWs.accept();
 
   // 心跳检测
-  let pingTimer: Timer | null = null;
+  let pingTimer: number | null = null;
   let pongReceived = true;
 
   const startPing = () => {
@@ -131,6 +131,7 @@ async function connectAndProxyWebSocket(
       }
       pongReceived = false;
       try {
+        // @ts-ignore - Cloudflare Workers WebSocket 扩展方法
         upstreamWs.ping();
       } catch (e) {
         if (pingTimer) clearInterval(pingTimer);
@@ -192,6 +193,7 @@ async function connectAndProxyWebSocket(
   });
 
   // Pong 处理
+  // @ts-ignore - Cloudflare Workers WebSocket 扩展事件
   upstreamWs.addEventListener('pong', () => {
     pongReceived = true;
   });

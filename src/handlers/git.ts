@@ -135,8 +135,8 @@ async function handleGitLFS(
     });
 
     // 尝试重写 LFS 响应中的 URL
+    const text = await upstreamResponse.text();
     try {
-      const text = await upstreamResponse.text();
       const json = JSON.parse(text);
 
       // 如果有 objects，重写 href 为代理地址
