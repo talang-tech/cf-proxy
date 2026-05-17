@@ -2,52 +2,6 @@
 // HTTP 代理处理器
 // ========================================
 
-/**
- * 重写响应内容中的链接
- * 将目标域名的链接替换为代理域名
- */
-async function rewriteResponseLinks(
-  response: Response,
-  targetBase: string,
-  proxyBase: string
-): Promise<Response> {
-  const contentType = response.headers.get('Content-Type') || '';
-  
-  // 只重写 HTML 和 JSON
-  if (!contentType.includes('text/html') && 
-      !contentType.includes('application/json') &&
-      !contentType.includes('application/javascript') &&
-      !contentType.includes('text/css')) {
-    return response;
-  }
-
-  try {
-    let body = await response.text();
-    
-    // 替换绝对路径链接
-    body = body.replaceAll(targetBase, proxyBase);
-    
-    // 替换协议相对路径 //github.com
-    const targetNoProto = targetBase.replace('https://', '');
-    body = body.replaceAll('//' + targetNoProto, proxyBase.replace('https://', '//'));
-    
-    // 替换相对路径
-    body = body.replaceAll('href="/', `href="${proxyBase}/`);
-    body = body.replaceAll('src="/', `src="${proxyBase}/`);
-    body = body.replaceAll('action="/', `action="${proxyBase}/`);
-    
-    return new Response(body, {
-      status: response.status,
-      statusText: response.statusText,
-      headers: response.headers,
-    });
-  } catch (e) {
-    // 如果重写失败，返回原始响应
-    return response;
-  }
-}
-
-
 import type { ProxyContext } from '../types';
 import { errorResponse } from '../utils/helpers';
 
@@ -114,7 +68,7 @@ export async function httpHandler(context: ProxyContext): Promise<Response> {
     // 发起请求 - Cloudflare fetch 自动支持流式传输
     const upstreamResponse = await fetch(targetUrl.toString(), fetchOptions);
 
-    // 直接透传响应 - Cloudflare 自动处理流式传输
+    // 直接透传响应
     const responseHeaders = new Headers(upstreamResponse.headers);
     
     // 移除 Hop-by-hop headers
@@ -137,17 +91,7 @@ export async function httpHandler(context: ProxyContext): Promise<Response> {
     // 确保连接保持
     responseHeaders.set('Connection', 'keep-alive');
 
-    // 如果是 HTML 页面，重写链接
-    const contentLength = parseInt(upstreamResponse.headers.get('Content-Length') || '0', 10);
-    const contentType = upstreamResponse.headers.get('Content-Type') || '';
-    
-    if (contentType.includes('text/html') && contentLength < 5 * 1024 * 1024) {
-      const proxyBase = `https://${url.host}${route.pattern}`.replace(/\/$/, '');
-      const targetBase = route.target || targetUrl.origin;
-      return rewriteResponseLinks(upstreamResponse, targetBase, proxyBase);
-    }
-
-    // 直接返回原始响应 body，Cloudflare 自动处理流式传输
+    // 直接返回原始响应
     return new Response(upstreamResponse.body, {
       status: upstreamResponse.status,
       statusText: upstreamResponse.statusText,
