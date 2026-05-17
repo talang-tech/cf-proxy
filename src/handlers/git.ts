@@ -4,7 +4,6 @@
 // ========================================
 
 import type { ProxyContext } from '../types';
-import { createStreamResponse } from '../utils/stream';
 import { errorResponse } from '../utils/helpers';
 
 export async function gitHandler(context: ProxyContext): Promise<Response> {
@@ -61,10 +60,11 @@ export async function gitHandler(context: ProxyContext): Promise<Response> {
 
     const upstreamResponse = await fetch(targetUrl.toString(), fetchOptions);
 
-    // Git 响应通常较大，使用流式传输
-    return createStreamResponse(upstreamResponse, context, {
-      chunkSize: 64 * 1024, // 64KB 分块
-      resumeSupport: true,
+    // Git 响应直接返回，Cloudflare 自动处理流式传输
+    return new Response(upstreamResponse.body, {
+      status: upstreamResponse.status,
+      statusText: upstreamResponse.statusText,
+      headers: upstreamResponse.headers,
     });
   } catch (error) {
     console.error('Git proxy error:', error);

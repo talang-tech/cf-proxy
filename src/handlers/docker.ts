@@ -4,7 +4,6 @@
 // ========================================
 
 import type { ProxyContext, ProxyRoute } from '../types';
-import { createStreamResponse } from '../utils/stream';
 import { errorResponse } from '../utils/helpers';
 
 export async function dockerHandler(context: ProxyContext): Promise<Response> {

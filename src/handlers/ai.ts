@@ -4,7 +4,6 @@
 // ========================================
 
 import type { ProxyContext } from '../types';
-import { createStreamResponse } from '../utils/stream';
 import { errorResponse } from '../utils/helpers';
 
 export async function aiHandler(context: ProxyContext): Promise<Response> {
@@ -90,16 +89,7 @@ export async function aiHandler(context: ProxyContext): Promise<Response> {
       return handleSSEStream(upstreamResponse, responseHeaders);
     }
 
-    // 大文件流式传输（如语音、图片生成）
-    const contentLength = parseInt(responseHeaders.get('Content-Length') || '0', 10);
-    const streamingThreshold = parseInt(env.STREAMING_THRESHOLD || '10485760', 10);
-
-    if (contentLength > streamingThreshold) {
-      return createStreamResponse(upstreamResponse, context, {
-        chunkSize: 256 * 1024, // 256KB
-        resumeSupport: true,
-      });
-    }
+    // Cloudflare 自动处理大文件流式传输
 
     return new Response(upstreamResponse.body, {
       status: upstreamResponse.status,

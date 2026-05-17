@@ -3,7 +3,6 @@
 // ========================================
 
 import type { ProxyContext } from '../types';
-import { createStreamResponse } from '../utils/stream';
 import { errorResponse } from '../utils/helpers';
 
 export async function httpHandler(context: ProxyContext): Promise<Response> {
@@ -18,9 +17,10 @@ export async function httpHandler(context: ProxyContext): Promise<Response> {
     let targetUrl: URL;
 
     if (route.target) {
+      const base = new URL(route.target);
       targetUrl = new URL(url.pathname.replace(route.pattern as string, '/'));
-      targetUrl.host = new URL(route.target).host;
-      targetUrl.protocol = new URL(route.target).protocol;
+      targetUrl.host = base.host;
+      targetUrl.protocol = base.protocol;
       targetUrl.search = url.search;
     } else {
       // 动态目标（如 /http/https://example.com）
@@ -31,13 +31,6 @@ export async function httpHandler(context: ProxyContext): Promise<Response> {
       }
       targetUrl = new URL(match[1]);
     }
-
-    // 路径重写
-    let finalPath = targetUrl.pathname;
-    if (route.rewrite?.path) {
-      finalPath = route.rewrite.path(targetUrl.pathname);
-    }
-    targetUrl.pathname = finalPath;
 
     // 准备请求头
     const headers = new Headers(request.headers);
@@ -72,26 +65,10 @@ export async function httpHandler(context: ProxyContext): Promise<Response> {
       fetchOptions.duplex = 'half';
     }
 
-    // 发起请求
+    // 发起请求 - Cloudflare fetch 自动支持流式传输
     const upstreamResponse = await fetch(targetUrl.toString(), fetchOptions);
 
-    // 检查是否需要流式传输
-    const contentLength = parseInt(upstreamResponse.headers.get('Content-Length') || '0', 10);
-    const streamingThreshold = parseInt(env.STREAMING_THRESHOLD || '10485760', 10);
-    const isStreaming = contentLength > streamingThreshold;
-    const isLargeFile = route.largeFile?.enabled && contentLength > (route.largeFile.threshold || 0);
-
-    context.isStreaming = !!isStreaming || !!isLargeFile;
-
-    // 大文件使用流式传输
-    if (isLargeFile || isStreaming) {
-      return createStreamResponse(upstreamResponse, context, {
-        chunkSize: parseInt(env.CHUNK_SIZE || "1048576", 10),
-        resumeSupport: route.largeFile?.resumeSupport ?? true,
-      });
-    }
-
-    // 普通响应
+    // 直接透传响应 - Cloudflare 自动处理流式传输
     const responseHeaders = new Headers(upstreamResponse.headers);
     
     // 移除 Hop-by-hop headers
@@ -111,6 +88,10 @@ export async function httpHandler(context: ProxyContext): Promise<Response> {
       responseHeaders.delete(header);
     }
 
+    // 确保连接保持
+    responseHeaders.set('Connection', 'keep-alive');
+
+    // 直接返回原始响应 body，Cloudflare 自动处理流式传输
     return new Response(upstreamResponse.body, {
       status: upstreamResponse.status,
       statusText: upstreamResponse.statusText,
