@@ -119,6 +119,19 @@ export const ROUTES: ProxyRoute[] = [
     },
   },
 
+  // Docker 认证代理
+  {
+    id: 'docker-auth',
+    name: 'Docker Auth Proxy',
+    pattern: '/docker-auth/',
+    target: 'https://auth.docker.io',
+    enabled: true,
+    handler: 'http',
+    rewrite: {
+      path: (path) => path.replace(/^\/docker-auth/, ''),
+    },
+  },
+
   // ========================================
   // Docker 代理
   // ========================================
