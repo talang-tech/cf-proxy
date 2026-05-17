@@ -1,0 +1,68 @@
+# .github/workflows/deploy.yml
+# Cloudflare Worker 自动部署工作流
+
+name: Deploy to Cloudflare Workers
+
+on:
+  # 推送到 main/master 分支时自动部署
+  push:
+    branches:
+      - main
+      - master
+
+  # 也可以手动触发部署
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deployment environment'
+        required: false
+        default: 'production'
+        type: choice
+        options:
+          - production
+          - staging
+
+# 权限配置
+permissions:
+  contents: read
+  deployments: write
+
+jobs:
+  deploy:
+    name: Deploy Worker
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check TypeScript types
+        run: npx tsc --noEmit
+
+      - name: Deploy to Cloudflare Workers
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: deploy --env production
+
+      - name: Create GitHub Deployment
+        uses: bobheadxi/deployments@v1
+        if: success()
+        with:
+          step: finish
+          token: ${{ github.token }}
+          status: success
+          deployment_id: ${{ steps.deployment.outputs.deployment_id }}
+          env: production
+          env_url: 'https://cf-proxy.${{ secrets.CLOUDFLARE_ACCOUNT_ID }}.workers.dev'
