@@ -102,7 +102,7 @@ export const ROUTES: ProxyRoute[] = [
     pattern: '/v2/',
     target: 'https://registry-1.docker.io',
     enabled: true,
-    handler: 'docker',
+    handler: 'http',
     rewrite: {
       path: (path) => path,
     },
@@ -150,7 +150,7 @@ export const ROUTES: ProxyRoute[] = [
     pattern: '/ghcr/',
     target: 'https://ghcr.io',
     enabled: true,
-    handler: 'docker',
+    handler: 'http',
     rewrite: {
       path: (path) => path.replace(/^\/ghcr/, ''),
     },
