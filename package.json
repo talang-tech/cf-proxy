@@ -1,0 +1,49 @@
+{
+  "name": "cf-worker-proxy",
+  "version": "2.0.0",
+  "description": "Cloudflare Worker 多功能代理 - 支持大文件、WebSocket、Git、Docker、AI 会话等",
+  "main": "dist/index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev src/index.ts",
+    "dev:remote": "wrangler dev src/index.ts --remote",
+    "deploy": "wrangler deploy src/index.ts",
+    "deploy:prod": "wrangler deploy src/index.ts --env production",
+    "build": "wrangler deploy src/index.ts --dry-run",
+    "logs": "wrangler tail",
+    "logs:prod": "wrangler tail --env production",
+    "secret:add": "wrangler secret put",
+    "secret:list": "wrangler secret list",
+    "route:list": "wrangler routes list",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "eslint src --ext .ts",
+    "format": "prettier --write src/**/*.ts"
+  },
+  "keywords": [
+    "cloudflare-worker",
+    "proxy",
+    "reverse-proxy",
+    "websocket",
+    "git-proxy",
+    "docker-proxy",
+    "ai-proxy",
+    "chatgpt-proxy"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20240405.0",
+    "@types/node": "^20.12.7",
+    "@typescript-eslint/eslint-plugin": "^7.7.0",
+    "@typescript-eslint/parser": "^7.7.0",
+    "eslint": "^8.57.0",
+    "prettier": "^3.2.5",
+    "typescript": "^5.4.5",
+    "vitest": "^1.5.0",
+    "wrangler": "^3.50.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
